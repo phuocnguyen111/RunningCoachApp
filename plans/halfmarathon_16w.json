@@ -1,0 +1,25 @@
+{
+  "id": "halfmarathon_16w",
+  "name": "Half Marathon 16 Tuần",
+  "description": "Giáo án chuẩn bị half marathon 21.1km. Phù hợp người đã có nền tảng chạy 20–30km/tuần.",
+  "distance_target_km": 21.1,
+  "total_weeks": 16,
+  "weeks": [
+    {"week": 1,  "phase": 1, "phase_name": "Xây Nền Tảng",  "total_km": 25, "long_run_km": 10, "session_type": "EASY",  "target_pace_min": 420, "target_pace_max": 480, "target_hr_max": 148, "note": "Xây nền, HR zone 2"},
+    {"week": 2,  "phase": 1, "phase_name": "Xây Nền Tảng",  "total_km": 28, "long_run_km": 12, "session_type": "EASY",  "target_pace_min": 420, "target_pace_max": 480, "target_hr_max": 148, "note": "Tăng long run"},
+    {"week": 3,  "phase": 1, "phase_name": "Xây Nền Tảng",  "total_km": 30, "long_run_km": 13, "session_type": "EASY",  "target_pace_min": 420, "target_pace_max": 480, "target_hr_max": 148, "note": "Ổn định nhịp"},
+    {"week": 4,  "phase": 1, "phase_name": "Xây Nền Tảng",  "total_km": 24, "long_run_km": 10, "session_type": "EASY",  "target_pace_min": 420, "target_pace_max": 480, "target_hr_max": 145, "note": "⚠️ Tuần giảm tải", "deload": true},
+    {"week": 5,  "phase": 2, "phase_name": "Phát Triển",    "total_km": 33, "long_run_km": 14, "session_type": "TEMPO", "target_pace_min": 360, "target_pace_max": 390, "target_hr_max": 165, "note": "Bắt đầu tempo 20 phút"},
+    {"week": 6,  "phase": 2, "phase_name": "Phát Triển",    "total_km": 36, "long_run_km": 15, "session_type": "TEMPO", "target_pace_min": 360, "target_pace_max": 390, "target_hr_max": 165, "note": "Tempo 25 phút"},
+    {"week": 7,  "phase": 2, "phase_name": "Phát Triển",    "total_km": 38, "long_run_km": 16, "session_type": "SPEED", "target_pace_min": 295, "target_pace_max": 325, "target_hr_max": 178, "note": "Interval 6×400m"},
+    {"week": 8,  "phase": 2, "phase_name": "Phát Triển",    "total_km": 30, "long_run_km": 13, "session_type": "EASY",  "target_pace_min": 420, "target_pace_max": 480, "target_hr_max": 148, "note": "⚠️ Tuần giảm tải", "deload": true},
+    {"week": 9,  "phase": 2, "phase_name": "Phát Triển",    "total_km": 42, "long_run_km": 17, "session_type": "MP",    "target_pace_min": 340, "target_pace_max": 375, "target_hr_max": 165, "note": "HM pace run 8km"},
+    {"week": 10, "phase": 2, "phase_name": "Phát Triển",    "total_km": 44, "long_run_km": 18, "session_type": "TEMPO", "target_pace_min": 355, "target_pace_max": 385, "target_hr_max": 168, "note": "Tempo 30 phút"},
+    {"week": 11, "phase": 2, "phase_name": "Phát Triển",    "total_km": 46, "long_run_km": 19, "session_type": "SPEED", "target_pace_min": 295, "target_pace_max": 325, "target_hr_max": 178, "note": "4×1000m intervals"},
+    {"week": 12, "phase": 2, "phase_name": "Phát Triển",    "total_km": 35, "long_run_km": 14, "session_type": "EASY",  "target_pace_min": 420, "target_pace_max": 480, "target_hr_max": 148, "note": "⚠️ Tuần giảm tải", "deload": true},
+    {"week": 13, "phase": 3, "phase_name": "Race Prep",     "total_km": 45, "long_run_km": 19, "session_type": "MP",    "target_pace_min": 340, "target_pace_max": 375, "target_hr_max": 165, "note": "Simulated race pace run"},
+    {"week": 14, "phase": 3, "phase_name": "Race Prep",     "total_km": 40, "long_run_km": 18, "session_type": "MP",    "target_pace_min": 340, "target_pace_max": 375, "target_hr_max": 165, "note": "Long run + MP segment"},
+    {"week": 15, "phase": 3, "phase_name": "Race Prep",     "total_km": 28, "long_run_km": 13, "session_type": "EASY",  "target_pace_min": 420, "target_pace_max": 480, "target_hr_max": 148, "note": "⚠️ TAPER – giảm 35%", "taper": true},
+    {"week": 16, "phase": 3, "phase_name": "Race Prep",     "total_km": 18, "long_run_km": 21.1,"session_type": "RACE",  "target_pace_min": 340, "target_pace_max": 375, "target_hr_max": 172, "note": "🏆 RACE DAY 21.1km", "race_week": true}
+  ]
+}

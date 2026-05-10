@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Running Coach Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e17;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d45;
+    --accent: #00e5ff;
+    --accent2: #ff6b35;
+    --green: #00e676;
+    --yellow: #ffd740;
+    --red: #ff5252;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --font-display: 'Syne', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --font-body: 'Inter', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; }
+
+  /* NAV */
+  nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex; align-items: center; gap: 1.5rem; height: 56px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .nav-brand {
+    font-family: var(--font-display); font-weight: 800; font-size: 1.1rem;
+    color: var(--accent); letter-spacing: -0.02em;
+  }
+  .nav-stat { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); }
+  .nav-stat span { color: var(--accent); font-weight: 500; }
+  .nav-links { display: flex; gap: 1.5rem; margin-left: auto; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.875rem; transition: color .2s; }
+  .nav-links a:hover { color: var(--text); }
+
+  /* HERO */
+  .hero {
+    padding: 2rem 2rem 1.5rem;
+    max-width: 1200px; margin: 0 auto;
+    display: flex; align-items: center; gap: 2rem; justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  .hero-left h1 {
+    font-family: var(--font-display); font-size: 2rem; font-weight: 800;
+    line-height: 1.1; letter-spacing: -0.03em;
+  }
+  .hero-left h1 span { color: var(--accent); }
+  .hero-left p { color: var(--muted); margin-top: 0.4rem; font-size: 0.9rem; }
+  .hero-stats { display: flex; gap: 2rem; }
+  .hero-stat .hs-val { font-family: var(--font-display); font-weight: 800; font-size: 1.75rem; }
+  .hero-stat .hs-label { font-size: 0.68rem; color: var(--muted); font-family: var(--font-mono); letter-spacing: 0.05em; }
+  .race-badge {
+    background: linear-gradient(135deg, var(--accent2), #ff9500);
+    color: #fff; font-family: var(--font-mono); font-size: 0.75rem;
+    padding: 0.625rem 1rem; border-radius: 8px; text-align: center; white-space: nowrap;
+  }
+  .race-badge strong { display: block; font-size: 1.1rem; letter-spacing: 0.05em; }
+
+  /* MAIN */
+  .main { max-width: 1200px; margin: 0 auto; padding: 0 2rem 4rem; display: grid; grid-template-columns: 360px 1fr; gap: 2rem; }
+
+  /* PANELS */
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .panel-header {
+    padding: 0.875rem 1.25rem; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+  }
+  .panel-title { font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; }
+  .panel-body { padding: 1.25rem; }
+
+  /* FORM */
+  .form-group { margin-bottom: 0.875rem; }
+  .form-group label { display: block; font-size: 0.68rem; color: var(--muted); margin-bottom: 0.35rem; font-family: var(--font-mono); letter-spacing: 0.05em; }
+  .form-group input, .form-group select {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); padding: 0.575rem 0.75rem; border-radius: 8px;
+    font-size: 0.85rem; font-family: var(--font-body); transition: border-color .2s;
+  }
+  .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent); }
+  .form-group select option { background: var(--surface2); }
+
+  .drop-zone {
+    border: 2px dashed var(--border); border-radius: 10px;
+    padding: 1.5rem 1rem; text-align: center; cursor: pointer;
+    transition: all .2s; margin-bottom: 0.875rem; position: relative;
+  }
+  .drop-zone:hover, .drop-zone.dragover { border-color: var(--accent); background: rgba(0,229,255,.04); }
+  .drop-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .drop-zone .dz-icon { font-size: 1.75rem; margin-bottom: 0.4rem; }
+  .drop-zone .dz-text { font-size: 0.78rem; color: var(--muted); }
+  .drop-zone .dz-name { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); margin-top: 0.2rem; min-height: 1.1em; }
+
+  /* BUTTONS */
+  .btn {
+    width: 100%; padding: 0.7rem; border-radius: 8px; border: none; cursor: pointer;
+    font-family: var(--font-display); font-weight: 700; font-size: 0.875rem;
+    background: var(--accent); color: #000; transition: opacity .2s;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-sm {
+    padding: 0.3rem 0.7rem; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); cursor: pointer;
+    font-size: 0.75rem; font-family: var(--font-display); font-weight: 600;
+    transition: all .15s; white-space: nowrap; flex-shrink: 0;
+  }
+  .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-cancel { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+
+  /* GROUPS */
+  .group-card {
+    padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 0.875rem; cursor: pointer; transition: background .15s;
+  }
+  .group-card:last-child { border-bottom: none; }
+  .group-card:hover { background: var(--surface2); }
+  .group-card.active { background: rgba(0,229,255,.06); border-left: 2px solid var(--accent); }
+  .gc-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+  .gc-info { flex: 1; min-width: 0; }
+  .gc-name { font-weight: 500; font-size: 0.875rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gc-meta { font-size: 0.7rem; color: var(--muted); font-family: var(--font-mono); margin-top: 0.1rem; }
+  .gc-count { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); flex-shrink: 0; }
+
+  /* GROUP FILTER TABS */
+  .group-filter {
+    display: flex; gap: 0.4rem; padding: 0.75rem 1.25rem;
+    overflow-x: auto; border-bottom: 1px solid var(--border);
+    scrollbar-width: none;
+  }
+  .group-filter::-webkit-scrollbar { display: none; }
+  .gtab {
+    padding: 0.275rem 0.75rem; border-radius: 20px; border: 1px solid var(--border);
+    background: transparent; color: var(--muted); cursor: pointer; font-size: 0.775rem;
+    font-family: var(--font-body); transition: all .15s; white-space: nowrap;
+  }
+  .gtab:hover { border-color: var(--accent); color: var(--text); }
+  .gtab.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+
+  /* ATHLETES */
+  .athlete-card {
+    display: flex; align-items: center; gap: 1rem; padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid var(--border); cursor: pointer; transition: background .15s;
+    text-decoration: none; color: inherit;
+  }
+  .athlete-card:last-child { border-bottom: none; }
+  .athlete-card:hover { background: var(--surface2); }
+  .athlete-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #0080ff);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-weight: 800; font-size: 0.9rem; color: #000; flex-shrink: 0;
+  }
+  .athlete-info { flex: 1; min-width: 0; }
+  .athlete-name { font-weight: 500; font-size: 0.875rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+  .athlete-meta { font-size: 0.7rem; color: var(--muted); font-family: var(--font-mono); margin-top: 0.1rem; }
+  .athlete-km { font-family: var(--font-mono); font-size: 0.825rem; color: var(--accent); font-weight: 500; flex-shrink: 0; }
+  .group-badge {
+    font-size: 0.62rem; font-family: var(--font-mono); padding: 1px 5px;
+    border-radius: 3px; background: rgba(0,229,255,.12); color: var(--accent);
+  }
+
+  /* PLAN TABS */
+  .plan-tabs {
+    display: flex; gap: 0.4rem; padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none;
+  }
+  .plan-tabs::-webkit-scrollbar { display: none; }
+  .ptab {
+    padding: 0.275rem 0.875rem; border-radius: 6px; border: 1px solid var(--border);
+    background: transparent; color: var(--muted); cursor: pointer; font-size: 0.78rem;
+    font-family: var(--font-body); transition: all .15s; white-space: nowrap;
+  }
+  .ptab:hover { border-color: var(--accent); color: var(--text); }
+  .ptab.active { background: rgba(0,229,255,.1); color: var(--accent); border-color: rgba(0,229,255,.3); font-weight: 500; }
+  .plan-grid { display: none; }
+  .plan-grid.active { display: block; }
+
+  /* PLAN WEEKS */
+  .phase-legend { display: flex; gap: 0.875rem; margin-bottom: 0.875rem; flex-wrap: wrap; }
+  .pl-item { display: flex; align-items: center; gap: 0.35rem; font-size: 0.7rem; color: var(--muted); }
+  .pl-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .plan-weeks { display: grid; grid-template-columns: repeat(auto-fill, minmax(54px, 1fr)); gap: 5px; }
+  .week-chip {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 0.375rem 0.2rem; text-align: center;
+    font-family: var(--font-mono); cursor: default; transition: all .15s;
+  }
+  .week-chip:hover { border-color: var(--accent); }
+  .week-chip .wc-num { font-size: 0.68rem; font-weight: 600; color: var(--text); }
+  .week-chip .wc-km { font-size: 0.6rem; color: var(--muted); }
+  .week-chip.p1 { border-color: #1e40af55; }
+  .week-chip.p2 { border-color: #92400e55; }
+  .week-chip.p3 { border-color: #14532d55; }
+  .week-chip.deload { opacity: 0.55; }
+  .week-chip.peak { border-color: var(--accent2); box-shadow: 0 0 5px rgba(255,107,53,.2); }
+  .week-chip.race { border-color: var(--yellow); box-shadow: 0 0 6px rgba(255,215,64,.25); }
+  .plan-total {
+    margin-top: 1.25rem; padding-top: 0.875rem; border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .plan-total-label { font-size: 0.68rem; color: var(--muted); font-family: var(--font-mono); letter-spacing: 0.05em; }
+  .plan-total-val { font-family: var(--font-display); font-size: 1.25rem; font-weight: 800; }
+  .plan-total-sub { font-size: 0.8rem; color: var(--muted); font-weight: 400; }
+
+  /* MODAL */
+  .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 200; align-items: center; justify-content: center; }
+  .modal.open { display: flex; }
+  .modal-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 1.75rem; width: 420px; max-width: 90vw;
+    box-shadow: 0 24px 64px rgba(0,0,0,.5);
+  }
+  .modal-card h3 { font-family: var(--font-display); font-weight: 800; margin-bottom: 1.25rem; font-size: 1.1rem; }
+  .modal-actions { display: flex; gap: 0.75rem; margin-top: 1.25rem; }
+  .modal-actions .btn { flex: 1; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 2rem; right: 2rem; max-width: 360px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1rem 1.25rem; z-index: 999;
+    box-shadow: 0 8px 32px rgba(0,0,0,.4);
+    transform: translateY(100px); opacity: 0;
+    transition: all .3s cubic-bezier(.22,1,.36,1);
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast-title { font-family: var(--font-display); font-weight: 700; margin-bottom: 0.4rem; }
+  .toast-body { font-size: 0.825rem; color: var(--muted); }
+  .toast.ok .toast-title { color: var(--green); }
+  .toast.warn .toast-title { color: var(--yellow); }
+  .toast.err .toast-title { color: var(--red); }
+
+  /* MISC */
+  .spinner {
+    width: 15px; height: 15px; border: 2px solid rgba(0,0,0,.2);
+    border-top-color: #000; border-radius: 50%; animation: spin .6s linear infinite;
+    display: inline-block; vertical-align: middle; margin-right: 5px;
+  }
+  .spinner-w { border-color: rgba(255,255,255,.2); border-top-color: #fff; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .empty { text-align: center; padding: 2.5rem 1rem; color: var(--muted); }
+  .empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+  .empty p { font-size: 0.85rem; line-height: 1.6; }
+  .empty-sm { text-align: center; padding: 1.25rem; color: var(--muted); font-size: 0.82rem; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">🏃 CoachRun</div>
+  <div class="nav-stat"><span>{{ athletes|length }}</span> HV · <span>{{ groups|length }}</span> nhóm · <span>{{ plans|length }}</span> giáo án</div>
+  <div class="nav-links">
+    <a href="/">Dashboard</a>
+    <a href="#upload">Upload</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-left">
+    <h1>Running Coach<br><span>Dashboard</span></h1>
+    <p>Phân tích tracklog · So sánh giáo án · Gợi ý AI</p>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hs-val">{{ athletes|length }}</div>
+      <div class="hs-label">HỌC VIÊN</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hs-val">{{ groups|length }}</div>
+      <div class="hs-label">NHÓM</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hs-val">{{ plans|length }}</div>
+      <div class="hs-label">GIÁO ÁN</div>
+    </div>
+  </div>
+  <div class="race-badge">
+    🏆 RACE DAY<br>
+    <strong>06/12/2026</strong>
+    Full Marathon
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ─── LEFT COLUMN ─────────────────────────────────────────── -->
+  <div>
+
+    <!-- UPLOAD PANEL -->
+    <div class="panel" id="upload" style="margin-bottom:1.5rem">
+      <div class="panel-header">
+        <span class="panel-title">📤 Upload Tracklog</span>
+        <span style="font-size:0.7rem;color:var(--muted);font-family:var(--font-mono)">.gpx · .fit · .csv</span>
+      </div>
+      <div class="panel-body">
+        <div class="form-group">
+          <label>TÊN HỌC VIÊN</label>
+          <input type="text" id="athleteName" placeholder="VD: Nguyen Van A" list="athlete-names-list" oninput="onAthleteInput(this.value)" onchange="onAthleteInput(this.value)">
+          <datalist id="athlete-names-list">
+            {% for a in athletes %}<option value="{{ a.name }}">{% endfor %}
+          </datalist>
+        </div>
+        <div class="form-group">
+          <label>NHÓM <span style="font-weight:400;color:var(--muted)">(tùy chọn)</span></label>
+          <select id="groupId" onchange="onGroupChange()">
+            <option value="">-- Không có nhóm --</option>
+            {% for g in groups %}
+            <option value="{{ g.id }}" data-plan-id="{{ g.plan_id or '' }}">{{ g.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>GIÁO ÁN *</label>
+          <select id="planId" onchange="onPlanChange()">
+            <option value="">-- Chọn giáo án --</option>
+            {% for p in plans %}
+            <option value="{{ p.id }}" {% if p.id == default_plan_id %}selected{% endif %}>
+              {{ p.name }} ({{ p.total_weeks }}W · {{ p.distance_target_km }}km)
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>TUẦN TRONG GIÁO ÁN *</label>
+          <select id="planWeek">
+            <option value="0">-- Chọn tuần --</option>
+            {% for w in plan %}
+            <option value="{{ w.week }}">Tuần {{ w.week }} – {{ w.phase_name }} ({{ w.total_km }}km)</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>LOẠI BUỔI TẬP</label>
+          <select id="sessionType">
+            <option value="EASY">Easy Run</option>
+            <option value="LONG">Long Run</option>
+            <option value="TEMPO">Tempo Run</option>
+            <option value="SPEED">Speed/Interval</option>
+            <option value="MP">Marathon Pace</option>
+          </select>
+        </div>
+        <div class="drop-zone" id="dropZone">
+          <input type="file" id="fileInput" accept=".gpx,.fit,.csv">
+          <div class="dz-icon">📁</div>
+          <div class="dz-text">Kéo thả file hoặc click để chọn</div>
+          <div class="dz-name" id="fileName"></div>
+        </div>
+        <button class="btn" id="uploadBtn" onclick="doUpload()">Phân tích</button>
+      </div>
+    </div>
+
+    <!-- GROUPS PANEL -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">👥 Nhóm ({{ groups|length }})</span>
+        <button class="btn-sm" onclick="openGroupModal()">+ Tạo nhóm</button>
+      </div>
+      {% if groups %}
+        {% set colors = ['rgba(0,229,255,.15)', 'rgba(255,107,53,.15)', 'rgba(168,85,247,.15)', 'rgba(0,230,118,.15)', 'rgba(255,215,64,.15)'] %}
+        {% set icons  = ['🏃', '⚡', '🌟', '💪', '🎯'] %}
+        {% for g in groups %}
+        <div class="group-card" onclick="filterAthletes('{{ g.id }}')" data-group-id="{{ g.id }}">
+          <div class="gc-icon" style="background:{{ colors[loop.index0 % 5] }}">{{ icons[loop.index0 % 5] }}</div>
+          <div class="gc-info">
+            <div class="gc-name">{{ g.name }}</div>
+            <div class="gc-meta">
+              {{ g.plan_id or '–' }}
+              {% if g.start_date %} · {{ g.start_date }}{% endif %}
+            </div>
+          </div>
+          <div class="gc-count">{{ g.athletes|length if g.athletes else 0 }} HV</div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-sm">Chưa có nhóm nào.<br>Nhấn <strong>+ Tạo nhóm</strong> để bắt đầu.</div>
+      {% endif %}
+    </div>
+
+  </div><!-- end left -->
+
+  <!-- ─── RIGHT COLUMN ─────────────────────────────────────────── -->
+  <div>
+
+    <!-- ATHLETES PANEL -->
+    <div class="panel" style="margin-bottom:1.5rem">
+      <div class="panel-header">
+        <span class="panel-title">🏃 Học viên ({{ athletes|length }})</span>
+      </div>
+      <div class="group-filter">
+        <button class="gtab active" data-filter-id="" onclick="filterAthletes('')">Tất cả</button>
+        {% for g in groups %}
+        <button class="gtab" data-filter-id="{{ g.id }}" onclick="filterAthletes('{{ g.id }}')">{{ g.name }}</button>
+        {% endfor %}
+        <button class="gtab" data-filter-id="__none__" onclick="filterAthletes('__none__')">Chưa có nhóm</button>
+      </div>
+      <div id="athleteList">
+        {% if athletes %}
+          {% for a in athletes %}
+          <a class="athlete-card" href="/athlete/{{ a.name }}" data-group="{{ a.group_id or '' }}">
+            <div class="athlete-avatar">{{ a.name[0].upper() }}</div>
+            <div class="athlete-info">
+              <div class="athlete-name">
+                {{ a.name }}
+                {% if a.group_id %}
+                  {% for g in groups if g.id == a.group_id %}
+                  <span class="group-badge">{{ g.name }}</span>
+                  {% endfor %}
+                {% endif %}
+              </div>
+              <div class="athlete-meta">{{ a.activity_count }} buổi · {{ a.last_activity or 'Chưa có data' }}</div>
+            </div>
+            <div class="athlete-km">{{ a.total_km }} km</div>
+          </a>
+          {% endfor %}
+        {% else %}
+          <div class="empty">
+            <div class="empty-icon">🏃</div>
+            <p>Chưa có học viên nào.<br>Upload tracklog để bắt đầu.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- PLAN OVERVIEW PANEL -->
+    <div class="panel">
+      <div class="plan-tabs" id="planTabs">
+        {% for p in plans %}
+        <button class="ptab {% if loop.first %}active{% endif %}"
+                data-plan-id="{{ p.id }}"
+                onclick="switchPlan('{{ p.id }}')">
+          {{ p.name }}
+        </button>
+        {% endfor %}
+      </div>
+
+      {% for p in plans %}
+      <div class="plan-grid {% if loop.first %}active{% endif %}" id="pg-{{ p.id }}">
+        <div class="panel-body">
+          <!-- Phase legend: collect unique phases -->
+          {% set ns = namespace(last_phase=-1) %}
+          <div class="phase-legend">
+            {% set phase_colors = ['#3b82f6','#f59e0b','#10b981','#a855f7'] %}
+            {% for w in p.weeks %}
+              {% if w.phase != ns.last_phase %}
+              <div class="pl-item">
+                <div class="pl-dot" style="background:{{ phase_colors[(w.phase - 1) % 4] }}"></div>
+                GĐ{{ w.phase }}: {{ w.phase_name }}
+              </div>
+              {% set ns.last_phase = w.phase %}
+              {% endif %}
+            {% endfor %}
+          </div>
+
+          <div class="plan-weeks">
+            {% for w in p.weeks %}
+            <div class="week-chip p{{ w.phase }}
+              {%- if w.deload is defined and w.deload %} deload{% endif %}
+              {%- if w.taper is defined and w.taper %} deload{% endif %}
+              {%- if w.long_run_km is defined and w.long_run_km >= 30 %} peak{% endif %}
+              {%- if w.race_week is defined and w.race_week %} race{% endif %}"
+                 title="{{ w.note }}">
+              <div class="wc-num">T{{ w.week }}</div>
+              <div class="wc-km">{{ w.total_km }}km</div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <div class="plan-total">
+            <div class="plan-total-label">TOTAL VOLUME</div>
+            <div>
+              <span class="plan-total-val">{{ p.weeks | sum(attribute='total_km') }} km</span>
+              <span class="plan-total-sub"> / {{ p.total_weeks }} tuần</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div><!-- end right -->
+
+</div><!-- end main -->
+
+<!-- CREATE GROUP MODAL -->
+<div class="modal" id="groupModal">
+  <div class="modal-card">
+    <h3>👥 Tạo nhóm mới</h3>
+    <div class="form-group">
+      <label>TÊN NHÓM *</label>
+      <input type="text" id="mgName" placeholder="VD: Nhóm Marathon A">
+    </div>
+    <div class="form-group">
+      <label>GIÁO ÁN</label>
+      <select id="mgPlan">
+        <option value="">-- Chọn giáo án --</option>
+        {% for p in plans %}
+        <option value="{{ p.id }}">{{ p.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>NGÀY BẮT ĐẦU</label>
+      <input type="date" id="mgStart">
+    </div>
+    <div class="form-group">
+      <label>GHI CHÚ</label>
+      <input type="text" id="mgNotes" placeholder="Tùy chọn">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeGroupModal()">Hủy</button>
+      <button class="btn" id="mgBtn" onclick="createGroup()">Tạo nhóm</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-title" id="toastTitle"></div>
+  <div class="toast-body" id="toastBody"></div>
+</div>
+
+<script>
+// ── Server data ──────────────────────────────────────────────────
+const PLANS_DATA    = {{ plans | tojson }};
+const ATHLETES_DATA = {{ athletes | tojson }};
+
+// ── Drag-drop & file input ───────────────────────────────────────
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const fileName  = document.getElementById('fileName');
+let selectedFile = null;
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('dragover');
+  selectedFile = e.dataTransfer.files[0];
+  fileName.textContent = selectedFile ? selectedFile.name : '';
+});
+fileInput.addEventListener('change', () => {
+  selectedFile = fileInput.files[0];
+  fileName.textContent = selectedFile ? selectedFile.name : '';
+});
+
+// ── Plan change → update week dropdown ──────────────────────────
+function onPlanChange() {
+  const planId = document.getElementById('planId').value;
+  const plan   = PLANS_DATA.find(p => p.id === planId);
+  const weekSel = document.getElementById('planWeek');
+  weekSel.innerHTML = '<option value="0">-- Chọn tuần --</option>';
+  if (!plan?.weeks) return;
+  plan.weeks.forEach(w => {
+    const o = document.createElement('option');
+    o.value = w.week;
+    o.textContent = `Tuần ${w.week} – ${w.phase_name} (${w.total_km}km)`;
+    weekSel.appendChild(o);
+  });
+}
+
+// ── Group change → auto-chọn plan của nhóm ──────────────────────
+function onGroupChange() {
+  const sel    = document.getElementById('groupId');
+  const planId = sel.options[sel.selectedIndex]?.dataset.planId || '';
+  if (planId) {
+    document.getElementById('planId').value = planId;
+    onPlanChange();
+  }
+}
+
+function onAthleteInput(val) {
+  const match = ATHLETES_DATA.find(a => a.name.toLowerCase() === val.trim().toLowerCase());
+  if (!match) return;
+  // Auto-fill group
+  if (match.group_id) {
+    const groupSel = document.getElementById('groupId');
+    if ([...groupSel.options].some(o => o.value === match.group_id)) {
+      groupSel.value = match.group_id;
+    }
+  }
+  // Auto-fill plan (prefer last_plan_id, fallback to group's plan)
+  const planId = match.last_plan_id || document.getElementById('groupId').options[document.getElementById('groupId').selectedIndex]?.dataset.planId || '';
+  if (planId) {
+    document.getElementById('planId').value = planId;
+    onPlanChange();
+  }
+}
+
+// ── Upload ───────────────────────────────────────────────────────
+async function doUpload() {
+  const name   = document.getElementById('athleteName').value.trim();
+  const planId = document.getElementById('planId').value;
+  const week   = document.getElementById('planWeek').value;
+  const stype  = document.getElementById('sessionType').value;
+  const gid    = document.getElementById('groupId').value;
+
+  if (!name)         { showToast('Lỗi', 'Vui lòng nhập tên học viên', 'err'); return; }
+  if (!planId)       { showToast('Lỗi', 'Vui lòng chọn giáo án', 'err'); return; }
+  if (!selectedFile) { showToast('Lỗi', 'Vui lòng chọn file tracklog', 'err'); return; }
+
+  const btn = document.getElementById('uploadBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Đang phân tích...';
+
+  const fd = new FormData();
+  fd.append('athlete_name', name);
+  fd.append('plan_id', planId);
+  fd.append('plan_week', week);
+  fd.append('session_type', stype);
+  fd.append('group_id', gid);
+  fd.append('file', selectedFile);
+
+  try {
+    const res  = await fetch('/api/upload', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) { showToast('Lỗi', data.error, 'err'); return; }
+
+    const act = data.activity, ana = data.analysis;
+    const msg = `${act.distance_km}km · ${fmtPace(act.avg_pace_sec)} · Score: ${ana.score}/100`;
+    const type = ana.score >= 70 ? 'ok' : ana.score >= 40 ? 'warn' : 'err';
+    showToast(`${ana.badge} ${name}`, msg, type);
+    setTimeout(() => location.href = '/athlete/' + encodeURIComponent(name), 2000);
+  } catch (e) {
+    showToast('Lỗi', e.message, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Phân tích';
+  }
+}
+
+// ── Filter athletes ──────────────────────────────────────────────
+function filterAthletes(groupId) {
+  // Update tab active state
+  document.querySelectorAll('.gtab').forEach(t => {
+    t.classList.toggle('active', t.dataset.filterId === groupId);
+  });
+  // Show/hide athlete cards
+  document.querySelectorAll('.athlete-card').forEach(card => {
+    const cg = card.dataset.group || '';
+    let show;
+    if      (groupId === '')       show = true;
+    else if (groupId === '__none__') show = cg === '';
+    else                           show = cg === groupId;
+    card.style.display = show ? '' : 'none';
+  });
+  // Highlight group card in left panel
+  document.querySelectorAll('.group-card').forEach(gc => {
+    gc.classList.toggle('active', gc.dataset.groupId === groupId);
+  });
+}
+
+// ── Plan tabs ────────────────────────────────────────────────────
+function switchPlan(planId) {
+  document.querySelectorAll('.ptab').forEach(t =>
+    t.classList.toggle('active', t.dataset.planId === planId));
+  document.querySelectorAll('.plan-grid').forEach(g =>
+    g.classList.toggle('active', g.id === 'pg-' + planId));
+}
+
+// ── Group modal ──────────────────────────────────────────────────
+function openGroupModal() {
+  document.getElementById('groupModal').classList.add('open');
+  setTimeout(() => document.getElementById('mgName').focus(), 50);
+}
+function closeGroupModal() {
+  document.getElementById('groupModal').classList.remove('open');
+}
+document.getElementById('groupModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('groupModal')) closeGroupModal();
+});
+
+async function createGroup() {
+  const name  = document.getElementById('mgName').value.trim();
+  const planId = document.getElementById('mgPlan').value;
+  const start  = document.getElementById('mgStart').value;
+  const notes  = document.getElementById('mgNotes').value.trim();
+  if (!name) { showToast('Lỗi', 'Nhập tên nhóm', 'err'); return; }
+
+  const btn = document.getElementById('mgBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner spinner-w"></span>Đang tạo...';
+
+  try {
+    const res  = await fetch('/api/groups', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, plan_id: planId || null, start_date: start, notes })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    showToast('✅ Đã tạo nhóm', data.group.name, 'ok');
+    closeGroupModal();
+    setTimeout(() => location.reload(), 1200);
+  } catch (e) {
+    showToast('Lỗi', e.message, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Tạo nhóm';
+  }
+}
+
+// ── Toast ────────────────────────────────────────────────────────
+function showToast(title, body, type = 'ok') {
+  const t = document.getElementById('toast');
+  document.getElementById('toastTitle').textContent = title;
+  document.getElementById('toastBody').textContent  = body;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.classList.remove('show'), 5000);
+}
+
+function fmtPace(sec) {
+  if (!sec) return 'N/A';
+  const m = Math.floor(sec / 60), s = sec % 60;
+  return `${m}:${String(s).padStart(2, '0')}/km`;
+}
+</script>
+</body>
+</html>

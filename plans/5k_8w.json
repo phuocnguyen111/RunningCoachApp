@@ -1,0 +1,17 @@
+{
+  "id": "5k_8w",
+  "name": "5K 8 Tuần",
+  "description": "Giáo án 8 tuần cho người mới bắt đầu hoặc chuẩn bị race 5km. Bắt đầu từ 15km/tuần.",
+  "distance_target_km": 5,
+  "total_weeks": 8,
+  "weeks": [
+    {"week": 1, "phase": 1, "phase_name": "Khởi Động",    "total_km": 15, "long_run_km": 4,  "session_type": "EASY",  "target_pace_min": 480, "target_pace_max": 540, "target_hr_max": 145, "note": "Chạy xen kẽ đi bộ, 3 buổi/tuần"},
+    {"week": 2, "phase": 1, "phase_name": "Khởi Động",    "total_km": 18, "long_run_km": 5,  "session_type": "EASY",  "target_pace_min": 480, "target_pace_max": 540, "target_hr_max": 148, "note": "Tăng thời gian chạy liên tục"},
+    {"week": 3, "phase": 1, "phase_name": "Khởi Động",    "total_km": 20, "long_run_km": 6,  "session_type": "EASY",  "target_pace_min": 480, "target_pace_max": 540, "target_hr_max": 148, "note": "Chạy 30 phút không nghỉ"},
+    {"week": 4, "phase": 1, "phase_name": "Khởi Động",    "total_km": 16, "long_run_km": 5,  "session_type": "EASY",  "target_pace_min": 480, "target_pace_max": 540, "target_hr_max": 145, "note": "⚠️ Tuần nhẹ, hồi phục", "deload": true},
+    {"week": 5, "phase": 2, "phase_name": "Tăng Tốc",     "total_km": 22, "long_run_km": 6,  "session_type": "TEMPO", "target_pace_min": 390, "target_pace_max": 420, "target_hr_max": 162, "note": "Fartlek 20 phút"},
+    {"week": 6, "phase": 2, "phase_name": "Tăng Tốc",     "total_km": 24, "long_run_km": 7,  "session_type": "SPEED", "target_pace_min": 315, "target_pace_max": 345, "target_hr_max": 178, "note": "6×400m, nghỉ 90 giây"},
+    {"week": 7, "phase": 2, "phase_name": "Tăng Tốc",     "total_km": 22, "long_run_km": 6,  "session_type": "TEMPO", "target_pace_min": 385, "target_pace_max": 415, "target_hr_max": 165, "note": "Tempo 25 phút + strides"},
+    {"week": 8, "phase": 3, "phase_name": "Race Week",    "total_km": 12, "long_run_km": 5,  "session_type": "RACE",  "target_pace_min": 315, "target_pace_max": 360, "target_hr_max": 182, "note": "🏆 RACE DAY 5km", "race_week": true}
+  ]
+}
