@@ -1,121 +1,51 @@
 # Running Coach App
 
-Web app local quản lý nhiều học viên trên nhiều plan training. Upload tracklog, chọn giáo án + tuần, phân tích tự động, gợi ý AI.
+Web app chạy trên máy HLV để quản lý nhiều học viên chạy bộ theo nhiều giáo án: upload tracklog,
+app tự đề xuất giáo án + tuần theo nhóm, chấm điểm buổi tập và gợi ý AI.
 
-## Cài đặt
+## Cài đặt & chạy
 
 ```bash
-# 1. Cài Python dependencies
-pip3 install flask fitparse gpxpy pandas anthropic
+# 1. Cài uv (một lần)
+pip3 install --user uv            # hoặc xem https://docs.astral.sh/uv/
 
-# 2. Set API key Claude (để dùng AI feedback)
+# 2. (Tùy chọn) bật AI feedback
 export ANTHROPIC_API_KEY="sk-ant-..."
+# export COACH_AI_MODEL="claude-sonnet-5-5"   # mặc định claude-opus-5-5
 
-# 3. Chạy app
-python app.py
-# hoặc
-bash run.sh
-
-# 4. Mở trình duyệt
-# http://localhost:5050
+# 3. Chạy — uv tự tải Python 3.12 và dependency
+bash run.sh                       # mở http://127.0.0.1:5050
+bash stop.sh                      # tắt an toàn + backup dữ liệu
 ```
+
+App chỉ nghe trên `127.0.0.1` và chạy được không cần mạng (trừ AI). Dữ liệu cũ được tự nâng cấp khi khởi
+động; bản sao trước khi nâng cấp nằm ở `data_backup/pre-migrate-*`.
 
 ## Tính năng
 
-### Quản lý Nhóm & Học viên
-- Tạo nhiều nhóm (VD: "Nhóm Marathon A", "Nhóm 5K Mới")
-- Mỗi nhóm gán với một giáo án
-- Thêm học viên vào nhóm, lọc danh sách theo nhóm
-
-### Upload & Phân tích
-- Hỗ trợ **GPX** (Strava, Coros, Suunto, Garmin export)
-- Hỗ trợ **FIT** (Garmin native, Coros)
-- Hỗ trợ **CSV** (Strava bulk export)
-- Khi upload: chọn **giáo án** + **tuần** cụ thể (độc lập với nhóm)
-- Tự động parse: distance, pace, HR, cadence, elevation
-
-### Giáo án (Plans)
-| Plan | Thời gian | Mục tiêu |
-|------|-----------|----------|
-| Marathon 27 Tuần | 27 tuần | Full Marathon 42.195km |
-| Half Marathon 16 Tuần | 16 tuần | Half Marathon 21.1km |
-| 5K 8 Tuần | 8 tuần | 5km |
-
-### So sánh Giáo án
-- Map buổi tập vào đúng tuần trong giáo án đã chọn
-- Kiểm tra: distance ±20%, pace zone, HR max
-- Score 0–100 + badge 🟢🟡🟠🔴
-- Cảnh báo cụ thể: quá nhanh, thiếu km, HR cao
-
-### Dashboard
-- Tổng km, pace TB, HR TB, compliance %
-- Biểu đồ km theo tuần
-- Biểu đồ HR trend
-- Lọc học viên theo nhóm
-- Overview tất cả giáo án với phase visualization
-
-### AI Feedback (cần ANTHROPIC_API_KEY)
-- Phân tích 8 buổi gần nhất
-- Đánh giá theo từng tuần trong plan
-- Gợi ý điều chỉnh bài tập kế tiếp
-- Cảnh báo overtraining / undertraining
-
-## Cấu trúc thư mục
-
-```
-running-coach-app/
-├── app.py              – Flask app chính
-├── parsers.py          – Đọc GPX/FIT/CSV
-├── analyzer.py         – Phân tích + AI feedback
-├── plan.py             – Helpers giáo án
-├── plans/
-│   ├── marathon_27w.json
-│   ├── halfmarathon_16w.json
-│   └── 5k_8w.json
-├── templates/
-│   ├── index.html      – Dashboard chính
-│   └── athlete.html    – Chi tiết học viên
-├── data/
-│   ├── athletes/       – Dữ liệu học viên (JSON)
-│   └── groups/         – Dữ liệu nhóm (JSON)
-├── uploads/            – File tracklog upload tạm
-└── run.sh              – Script khởi động
-```
-
-## Luồng sử dụng
-
-### Tạo nhóm mới
-1. Mở http://localhost:5050
-2. Nhấn **+ Tạo nhóm** → nhập tên, chọn giáo án, ngày bắt đầu
-3. Nhóm xuất hiện trong danh sách bên trái
-
-### Upload tracklog
-1. Nhập tên học viên (mới hoặc có sẵn)
-2. Chọn nhóm (tùy chọn — nếu chọn, giáo án tự điền)
-3. Chọn **Giáo án** (bắt buộc: Marathon / Half Marathon / 5K)
-4. Chọn **tuần** trong giáo án
-5. Chọn loại buổi tập
-6. Upload file tracklog → xem kết quả phân tích ngay
-
-### Xem tiến độ học viên
-1. Click tên học viên trong danh sách
-2. Xem stats tổng hợp, biểu đồ, lịch sử buổi tập
-3. Chọn tuần → nhấn **✨ Phân tích ngay** để nhận AI feedback
+- **Nhóm & học viên**: mỗi nhóm gắn một giáo án và ngày bắt đầu; lọc học viên theo nhóm; đổi nhóm không làm
+  thay đổi kết quả chấm của buổi cũ.
+- **Upload GPX / FIT / CSV (Strava)**: bước xem trước tự điền giáo án, tuần (theo ngày bắt đầu của nhóm) và loại
+  buổi; HLV sửa rồi mới lưu. CSV nhiều hoạt động được tách thành từng buổi; buổi trùng được đánh dấu.
+- **Chấm điểm theo loại buổi**: long run so với km long run; pace/HR so với mục tiêu khi buổi khớp trọng tâm tuần.
+  Badge 🟢 ≥80 · 🟡 60–79 · 🟠 40–59 · 🔴 <40 · ⚪ không chấm.
+- **Trang học viên**: tổng km, pace/HR TB, tỷ lệ buổi đạt, km tuần so với mục tiêu, xu hướng HR, lịch sử, xóa buổi.
+- **AI feedback**: đánh giá 8 buổi gần nhất theo giáo án thật và gợi ý tuần kế tiếp. Chỉ gửi chỉ số tóm tắt —
+  không gửi tên học viên, file, GPS hay chuỗi HR.
+- **Giáo án**: Marathon 27 tuần, Half Marathon 16 tuần, 5K 8 tuần; thêm giáo án bằng một file JSON trong `plans/`.
 
 ## Lấy file tracklog
 
-**Strava:**
-1. Mở Strava app/web → Activity → "..." → Export GPX
+- **Strava**: Activity → "…" → Export GPX; hoặc Settings → My Account → Download your data (activities.csv)
+- **Garmin Connect**: Activity → ⚙ → Export Original (.fit)
+- **Coros**: Activity → Share → Export (.fit)
 
-**Garmin:**
-- Garmin Connect → Activity → Export Original (.fit)
+## Phát triển
 
-**Coros:**
-- Coros app → Activity → Share → Export (.fit)
+```bash
+uv run pytest                                   # test
+uv run python tests/fixtures/make_fixtures.py   # sinh lại fixture GPX/CSV
+uv run python scripts/seed_demo.py --base /tmp/coach-demo   # dữ liệu demo + đo tốc độ trang
+```
 
-## Yêu cầu hệ thống
-
-- Python 3.8+
-- macOS / Linux / Windows (WSL)
-- RAM: 256MB là đủ
-- Không cần internet (trừ AI feedback)
+Quy trình Spec Kit và kiến trúc: xem `CLAUDE.md` và `specs/001-coach-app-rebuild/`.

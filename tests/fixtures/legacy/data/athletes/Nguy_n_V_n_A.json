@@ -1,0 +1,50 @@
+{
+  "name": "Nguyễn Văn A",
+  "group_id": null,
+  "activities": [
+    {
+      "source": "GPX",
+      "date": "2026-06-17",
+      "start_time": "2026-06-17T05:30:00+07:00",
+      "distance_km": 12.5,
+      "duration_sec": 5500,
+      "avg_pace_sec": 440,
+      "avg_hr": 145,
+      "max_hr": 160,
+      "avg_cadence": 170,
+      "elevation_gain_m": 30,
+      "hr_data": [
+        140,
+        145
+      ],
+      "plan_week": 3,
+      "session_type": "LONG",
+      "plan_id": "marathon_27w",
+      "filename": "run.gpx",
+      "file_path": "uploads/Nguy_n_V_n_A/run.gpx",
+      "analysis": {
+        "score": 30,
+        "badge": "🔴",
+        "flags": [
+          "Thiếu quãng đường (12.5km vs kế hoạch 30km)"
+        ]
+      }
+    },
+    {
+      "source": "CSV",
+      "date": "2026-06-10",
+      "distance_km": 5.0,
+      "duration_sec": 2300,
+      "avg_pace_sec": 460,
+      "avg_hr": null,
+      "plan_week": 0,
+      "session_type": "",
+      "plan_id": "",
+      "analysis": {
+        "score": 0,
+        "badge": "⚪",
+        "flags": []
+      }
+    }
+  ]
+}

@@ -1,11 +1,11 @@
 # Dữ liệu học viên & nhóm (thông tin cá nhân)
-data/
+/data/
 
 # Backup
-data_backup/
+/data_backup/
 
 # File tracklog upload tạm
-uploads/
+/uploads/
 
 # API keys & secrets
 .env
@@ -30,8 +30,12 @@ env/
 # IDE & Claude Code local config
 .vscode/
 .idea/
-.claude/
+.claude/*
+!.claude/skills/
 
 # Logs
 *.log
 /tmp/
+
+# PID
+.app.pid

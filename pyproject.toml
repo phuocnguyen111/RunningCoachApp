@@ -1,0 +1,20 @@
+[project]
+name = "running-coach-app"
+version = "2.0.0"
+description = "Web app local quản lý học viên chạy bộ theo giáo án"
+requires-python = ">=3.12"
+dependencies = [
+    "flask>=3.1",
+    "gpxpy>=1.6",
+    "fitparse>=1.2",
+    "anthropic>=1.0",
+]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

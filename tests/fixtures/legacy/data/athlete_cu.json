@@ -1,0 +1,16 @@
+{
+  "name": "Lê Thị Cũ",
+  "activities": [
+    {
+      "date": "2026-06-03",
+      "distance_km": 6.0,
+      "avg_pace_sec": 450,
+      "avg_hr": 140,
+      "plan_week": 1,
+      "session_type": "EASY",
+      "score": 100,
+      "badge": "🟢",
+      "flags": []
+    }
+  ]
+}

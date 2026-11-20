@@ -1,390 +1,99 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{ athlete.name }} – CoachRun</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<style>
-  :root {
-    --bg:#0a0e17;--surface:#111827;--surface2:#1a2235;--border:#1e2d45;
-    --accent:#00e5ff;--accent2:#ff6b35;--green:#00e676;--yellow:#ffd740;--red:#ff5252;
-    --text:#e2e8f0;--muted:#64748b;
-    --font-display:'Syne',sans-serif;--font-mono:'DM Mono',monospace;--font-body:'Inter',sans-serif;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh}
-  nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;gap:1rem;height:56px;position:sticky;top:0;z-index:100}
-  .nav-brand{font-family:var(--font-display);font-weight:800;font-size:1.1rem;color:var(--accent);text-decoration:none}
-  .nav-back{color:var(--muted);text-decoration:none;font-size:0.875rem;display:flex;align-items:center;gap:0.3rem}
-  .nav-back:hover{color:var(--text)}
-
-  .page{max-width:1200px;margin:0 auto;padding:2rem}
-
-  /* HEADER */
-  .athlete-header{display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem}
-  .avatar-large{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#0080ff);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:1.5rem;color:#000;flex-shrink:0}
-  .athlete-header h1{font-family:var(--font-display);font-size:1.75rem;font-weight:800;letter-spacing:-0.02em}
-  .athlete-header p{color:var(--muted);font-size:0.875rem;margin-top:0.25rem}
-
-  /* STAT CARDS */
-  .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;margin-bottom:2rem}
-  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem}
-  .stat-label{font-family:var(--font-mono);font-size:0.7rem;color:var(--muted);letter-spacing:0.05em;margin-bottom:0.5rem}
-  .stat-value{font-family:var(--font-display);font-size:1.5rem;font-weight:800}
-  .stat-sub{font-size:0.75rem;color:var(--muted);margin-top:0.25rem}
-
-  /* GRID */
-  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem}
-  .grid-full{margin-bottom:1.5rem}
-  @media(max-width:768px){.grid-2{grid-template-columns:1fr}}
-
-  /* PANEL */
-  .panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
-  .panel-header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-  .panel-title{font-family:var(--font-display);font-weight:700;font-size:0.95rem}
-  .panel-body{padding:1.25rem}
-
-  /* ACTIVITY TABLE */
-  table{width:100%;border-collapse:collapse}
-  th{font-family:var(--font-mono);font-size:0.7rem;color:var(--muted);letter-spacing:0.05em;text-align:left;padding:0.5rem 0.75rem;border-bottom:1px solid var(--border)}
-  td{padding:0.75rem;font-size:0.85rem;border-bottom:1px solid var(--border)}
-  tr:last-child td{border-bottom:none}
-  tr:hover td{background:var(--surface2)}
-  .badge{display:inline-block;font-family:var(--font-mono);font-size:0.7rem;padding:0.2rem 0.5rem;border-radius:4px;font-weight:500}
-  .badge-ok{background:rgba(0,230,118,.15);color:var(--green)}
-  .badge-warn{background:rgba(255,215,64,.15);color:var(--yellow)}
-  .badge-bad{background:rgba(255,82,82,.15);color:var(--red)}
-  .flag-text{font-size:0.75rem;color:var(--yellow)}
-
-  /* AI PANEL */
-  .ai-panel{background:linear-gradient(135deg,rgba(124,58,237,.1),rgba(168,85,247,.05));border:1px solid rgba(124,58,237,.3);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem}
-  .ai-panel h3{font-family:var(--font-display);font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem}
-  .ai-controls{display:flex;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center}
-  .ai-select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:0.5rem 0.75rem;border-radius:8px;font-size:0.85rem}
-  .btn{padding:0.625rem 1.25rem;border-radius:8px;border:none;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:0.875rem;transition:opacity .2s}
-  .btn-ai{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff}
-  .btn-ai:hover{opacity:.85}
-  .btn-ai:disabled{opacity:.4;cursor:not-allowed}
-  .ai-output{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-size:0.875rem;line-height:1.7;white-space:pre-wrap;min-height:80px;color:var(--text)}
-  .ai-output.loading{color:var(--muted);font-style:italic}
-  .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px}
-  @keyframes spin{to{transform:rotate(360deg)}}
-
-  /* CHART */
-  .chart-container{position:relative;height:200px}
-
-  /* COMPLIANCE BAR */
-  .compliance-bar{height:6px;border-radius:3px;background:var(--border);overflow:hidden;margin-top:0.5rem}
-  .compliance-fill{height:100%;border-radius:3px;background:var(--green);transition:width .8s ease}
-
-  .pace-indicator{display:inline-block;font-family:var(--font-mono);font-size:0.8rem;padding:2px 6px;border-radius:4px;margin-left:6px}
-  .pi-fast{background:rgba(255,82,82,.2);color:var(--red)}
-  .pi-ok{background:rgba(0,230,118,.2);color:var(--green)}
-  .pi-slow{background:rgba(255,215,64,.2);color:var(--yellow)}
-  .group-badge{font-size:0.7rem;font-family:var(--font-mono);padding:2px 7px;border-radius:4px;background:rgba(0,229,255,.12);color:var(--accent);margin-left:0.5rem;vertical-align:middle}
-  .del-btn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.875rem;padding:0.2rem 0.4rem;border-radius:4px;transition:color .15s;line-height:1}
-  .del-btn:hover{color:var(--red)}
-</style>
-</head>
-<body>
-<nav>
-  <a class="nav-brand" href="/">🏃 CoachRun</a>
-  <a class="nav-back" href="/">← Danh sách</a>
-</nav>
-
+{% extends "base.html" %}
+{% block title %}{{ athlete.name }} · Running Coach{% endblock %}
+{% macro pace(sec) -%}
+{%- if sec and sec > 0 -%}{{ (sec // 60)|int }}:{{ '%02d'|format((sec % 60)|int) }}/km{%- else -%}—{%- endif -%}
+{%- endmacro %}
+{% block content %}
 <div class="page">
+  <a href="/" class="muted" style="font-size:.8rem;text-decoration:none">← Dashboard</a>
+  <h1 class="page-title" style="margin-top:.4rem">{{ athlete.name }}</h1>
+  <p class="page-sub">
+    {% if group %}Nhóm <b>{{ group.name }}</b> · {{ plan_names.get(group.plan_id, group.plan_id) }}{% if group.start_date %} · bắt đầu {{ group.start_date }}{% endif %}
+    {% else %}Chưa thuộc nhóm nào{% endif %}
+  </p>
 
-  <!-- HEADER -->
-  <div class="athlete-header">
-    <div class="avatar-large">{{ athlete.name[0].upper() }}</div>
-    <div>
-      <h1>
-        {{ athlete.name }}
-        {% if group %}<span class="group-badge">{{ group.name }}</span>{% endif %}
-      </h1>
-      <p>
-        {{ activities|length }} buổi tập
-        {% if group and group.plan_id %} · <span style="font-family:var(--font-mono);font-size:0.8rem;color:var(--accent)">{{ group.plan_id }}</span>{% endif %}
-        {% if group and group.start_date %} · bắt đầu {{ group.start_date }}{% endif %}
-      </p>
+  <div class="stats">
+    <div class="stat"><div class="stat-val">{{ summary.total_km }}</div><div class="stat-lbl">TỔNG KM</div></div>
+    <div class="stat"><div class="stat-val">{{ summary.total_sessions }}</div><div class="stat-lbl">SỐ BUỔI</div></div>
+    <div class="stat"><div class="stat-val">{{ pace(summary.avg_pace_sec) }}</div><div class="stat-lbl">PACE TB</div></div>
+    <div class="stat"><div class="stat-val">{{ summary.avg_hr or '—' }}</div><div class="stat-lbl">HR TB</div></div>
+    <div class="stat"><div class="stat-val">{{ summary.good_pct ~ '%' if summary.good_pct is not none else '—' }}</div><div class="stat-lbl">BUỔI ĐẠT (🟢/🟡)</div></div>
+  </div>
+
+  {% if not activities %}
+  <div class="panel" style="margin-top:1.5rem"><div class="empty">Chưa có buổi tập nào.<br>Quay lại <a href="/#upload">Dashboard</a> để upload tracklog đầu tiên.</div></div>
+  {% else %}
+  <div class="grid-2" style="grid-template-columns:1fr 1fr">
+    <div class="panel"><div class="panel-header"><div class="panel-title">📊 Km theo tuần (thực tế vs mục tiêu)</div></div>
+      <div class="panel-body"><div class="chart-box"><canvas id="chartKm"></canvas></div></div></div>
+    <div class="panel"><div class="panel-header"><div class="panel-title">❤️ Xu hướng HR trung bình</div></div>
+      <div class="panel-body"><div class="chart-box"><canvas id="chartHr"></canvas></div></div></div>
+  </div>
+  {% endif %}
+
+  <div class="panel" style="margin-top:1.5rem" id="aiPanel">
+    <div class="panel-header"><div class="panel-title">🤖 Nhận xét & gợi ý AI</div></div>
+    <div class="panel-body">
+      {% if not ai_enabled %}
+        <p class="muted" style="font-size:.85rem">Tính năng AI chưa được cấu hình. Đặt biến môi trường <span class="mono">ANTHROPIC_API_KEY</span>
+        (hoặc đăng nhập bằng <span class="mono">ant auth login</span> rồi đặt <span class="mono">COACH_AI_ENABLED=1</span>) và khởi động lại app.</p>
+      {% elif not ai_plan %}
+        <p class="muted" style="font-size:.85rem">Học viên chưa có giáo án (chưa thuộc nhóm và chưa có buổi tập gắn giáo án).</p>
+      {% endif %}
+      <div class="btn-row" style="align-items:flex-end">
+        <div class="form-group" style="flex:1;margin:0">
+          <label for="aiWeek">TUẦN ĐANG XÉT · {{ ai_plan.name if ai_plan else '—' }}</label>
+          <select id="aiWeek" {% if not ai_enabled or not ai_plan %}disabled{% endif %}>
+            {% if ai_plan %}{% for w in ai_plan.weeks %}<option value="{{ w.week }}">Tuần {{ w.week }} · {{ w.phase_name }} · {{ w.total_km }}km</option>{% endfor %}{% endif %}
+          </select>
+        </div>
+        <button class="btn" style="flex:0 0 200px" id="aiBtn" {% if not ai_enabled or not ai_plan %}disabled{% endif %}>✨ Phân tích</button>
+      </div>
+      <div class="ai-output" id="aiOutput"></div>
     </div>
   </div>
 
-  <!-- STAT CARDS -->
-  <div class="stats-grid" id="statsGrid">
-    <div class="stat-card">
-      <div class="stat-label">TỔNG KM</div>
-      <div class="stat-value" id="statKm">--</div>
-      <div class="stat-sub">tổng cộng</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">SỐ BUỔI</div>
-      <div class="stat-value">{{ activities|length }}</div>
-      <div class="stat-sub">đã upload</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">PACE TB</div>
-      <div class="stat-value" id="statPace">--</div>
-      <div class="stat-sub">tất cả buổi</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">HR TB</div>
-      <div class="stat-value" id="statHr">--</div>
-      <div class="stat-sub">bpm</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">COMPLIANCE</div>
-      <div class="stat-value" id="statCompliance">--</div>
-      <div class="compliance-bar"><div class="compliance-fill" id="complianceFill" style="width:0%"></div></div>
-    </div>
-  </div>
-
-  <!-- AI FEEDBACK -->
-  <div class="ai-panel">
-    <h3>🤖 Phân tích & Gợi ý AI</h3>
-    <div class="ai-controls">
-      <label style="font-size:0.8rem;color:var(--muted)">Dựa trên tuần:</label>
-      <select class="ai-select" id="aiWeek">
-        <option value="0">-- Chọn tuần đang tập --</option>
-        {% for w in plan %}
-        <option value="{{ w.week }}">Tuần {{ w.week }} – {{ w.phase_name }}</option>
-        {% endfor %}
-      </select>
-      <button class="btn btn-ai" id="aiBtn" onclick="getAIFeedback()">✨ Phân tích ngay</button>
-    </div>
-    <div class="ai-output" id="aiOutput">Chọn tuần và nhấn "Phân tích ngay" để AI đánh giá tiến độ và gợi ý bài tập kế tiếp.</div>
-  </div>
-
-  <!-- CHARTS -->
-  <div class="grid-2">
-    <div class="panel">
-      <div class="panel-header"><span class="panel-title">📊 KM theo tuần</span></div>
-      <div class="panel-body"><div class="chart-container"><canvas id="chartKm"></canvas></div></div>
-    </div>
-    <div class="panel">
-      <div class="panel-header"><span class="panel-title">❤️ HR trend</span></div>
-      <div class="panel-body"><div class="chart-container"><canvas id="chartHr"></canvas></div></div>
-    </div>
-  </div>
-
-  <!-- ACTIVITY TABLE -->
-  <div class="panel grid-full">
-    <div class="panel-header">
-      <span class="panel-title">📋 Lịch sử buổi tập</span>
-      <span style="font-size:0.75rem;color:var(--muted)">{{ activities|length }} buổi</span>
-    </div>
+  <div class="panel" style="margin-top:1.5rem">
+    <div class="panel-header"><div class="panel-title">📅 Lịch sử buổi tập</div></div>
     {% if activities %}
-    <table>
-      <thead>
-        <tr>
-          <th>NGÀY</th><th>TUẦN</th><th>LOẠI</th><th>KM</th><th>PACE</th><th>HR</th><th>SCORE</th><th>NHẬN XÉT</th><th></th>
-        </tr>
-      </thead>
+    <div style="overflow-x:auto">
+    <table class="tbl">
+      <thead><tr><th>NGÀY</th><th>BUỔI</th><th>KM</th><th>PACE</th><th>HR</th><th>ĐIỂM</th><th>MỤC TIÊU & NHẬN XÉT</th><th></th></tr></thead>
       <tbody>
-        {% for act in activities|reverse %}
-        {% set orig_idx = activities|length - 1 - loop.index0 %}
-        {% set ana = act.analysis or {} %}
-        <tr>
-          <td style="font-family:var(--font-mono);font-size:0.8rem">{{ act.date }}</td>
-          <td>
-            {% if act.plan_week %}
-              <span style="font-family:var(--font-mono);font-size:0.82rem">T{{ act.plan_week }}</span>
-              {% if act.plan_id %}
-              <div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);margin-top:1px">{{ act.plan_id }}</div>
-              {% endif %}
-            {% else %}
-              <span style="color:var(--muted)">–</span>
-            {% endif %}
+      {% for a in activities %}
+        {% set an = a.analysis or {} %}
+        {% set t = a.plan_week_snapshot %}
+        <tr id="act-{{ a.id }}">
+          <td class="mono">{{ a.date }}</td>
+          <td>{{ a.session_type }}<br><span class="muted mono" style="font-size:.7rem">{{ plan_names.get(a.plan_id, a.plan_id or 'không giáo án') }}{% if a.plan_week %} · T{{ a.plan_week }}{% endif %}</span></td>
+          <td class="mono">{{ a.distance_km }}</td>
+          <td class="mono">{{ pace(a.avg_pace_sec) }}</td>
+          <td class="mono">{{ a.avg_hr or '—' }}</td>
+          <td class="mono" style="white-space:nowrap">{{ an.badge or '⚪' }} {{ an.score if an.score is not none else '—' }}</td>
+          <td style="font-size:.75rem">
+            {% if t %}<span class="muted">Pace {{ pace(t.target_pace_min)[:-3] }}–{{ pace(t.target_pace_max) }} · HR ≤ {{ t.target_hr_max }}{% if t.long_run_km %} · Long run {{ t.long_run_km }} km{% endif %} · Tuần {{ t.total_km }} km</span>{% endif %}
+            {% if an.flags %}<ul class="flags">{% for f in an.flags %}<li>{{ f }}</li>{% endfor %}</ul>{% endif %}
+            {% if an.note %}<div class="note">{{ an.note }}</div>{% endif %}
           </td>
-          <td>
-            {% set stype = act.session_type or '' %}
-            {% if stype == 'LONG' %}<span style="color:#3b82f6">🔵 LONG</span>
-            {% elif stype == 'TEMPO' %}<span style="color:#10b981">🟢 TEMPO</span>
-            {% elif stype == 'SPEED' %}<span style="color:#a855f7">🟣 SPEED</span>
-            {% elif stype == 'MP' %}<span style="color:#f59e0b">🟠 MP</span>
-            {% else %}<span style="color:var(--muted)">⚪ EASY</span>{% endif %}
-          </td>
-          <td style="font-family:var(--font-mono)">
-            {{ "%.1f"|format(act.distance_km) }}km
-            {% if ana.distance_ok == false %}<span style="color:var(--red)">⚠</span>{% endif %}
-          </td>
-          <td style="font-family:var(--font-mono)">
-            {% if act.avg_pace_sec %}
-              {{ (act.avg_pace_sec // 60)|int }}:{{ "%02d"|format(act.avg_pace_sec % 60) }}/km
-              {% if ana.pace_ok == false %}
-                {% if act.avg_pace_sec < (act.plan_context.target_pace_min if act.plan_context else 999) %}<span class="pace-indicator pi-fast">快</span>
-                {% else %}<span class="pace-indicator pi-slow">遅</span>{% endif %}
-              {% elif ana.pace_ok == true %}<span class="pace-indicator pi-ok">✓</span>{% endif %}
-            {% else %}N/A{% endif %}
-          </td>
-          <td style="font-family:var(--font-mono)">
-            {% if act.avg_hr %}
-              {{ act.avg_hr }} bpm
-              {% if ana.hr_ok == false %}<span style="color:var(--red)">↑</span>{% endif %}
-            {% else %}–{% endif %}
-          </td>
-          <td>
-            {% if ana.score is defined %}
-              {% if ana.score >= 70 %}<span class="badge badge-ok">{{ ana.score }}/100</span>
-              {% elif ana.score >= 40 %}<span class="badge badge-warn">{{ ana.score }}/100</span>
-              {% else %}<span class="badge badge-bad">{{ ana.score }}/100</span>{% endif %}
-            {% else %}–{% endif %}
-          </td>
-          <td>
-            {% if ana.flags %}
-              {% for f in ana.flags %}<div class="flag-text">• {{ f }}</div>{% endfor %}
-            {% elif ana.score is defined %}<span style="color:var(--green);font-size:0.8rem">✓ Đúng kế hoạch</span>
-            {% else %}<span style="color:var(--muted);font-size:0.8rem">Chưa map tuần</span>{% endif %}
-          </td>
-          <td><button class="del-btn" onclick="deleteActivity({{ orig_idx }}, event)" title="Xóa buổi này">🗑</button></td>
+          <td><button class="btn-sm danger" data-id="{{ a.id }}" data-label="{{ a.date }} · {{ a.distance_km }} km">Xóa</button></td>
         </tr>
-        {% endfor %}
+      {% endfor %}
       </tbody>
     </table>
-    {% else %}
-    <div style="text-align:center;padding:3rem;color:var(--muted)">
-      <div style="font-size:2.5rem;margin-bottom:1rem">🏃</div>
-      <p>Chưa có buổi tập nào. <a href="/" style="color:var(--accent)">Upload tracklog</a>.</p>
     </div>
+    {% else %}
+    <div class="empty">Chưa có buổi tập.</div>
     {% endif %}
   </div>
-
 </div>
-
+{% endblock %}
+{% block scripts %}
 <script>
-const ATHLETE_NAME = {{ athlete.name | tojson }};
-const ACTIVITIES = {{ activities | tojson }};
-
-// ── Load summary stats ───────────────────────────────────────────
-async function loadSummary() {
-  try {
-    const r = await fetch('/api/athlete/' + encodeURIComponent(ATHLETE_NAME) + '/summary');
-    const d = await r.json();
-    if (d.error) return;
-    document.getElementById('statKm').textContent = d.total_km + ' km';
-    document.getElementById('statPace').textContent = fmtPace(d.avg_pace_sec);
-    document.getElementById('statHr').textContent = d.avg_hr ? d.avg_hr + ' bpm' : '–';
-    document.getElementById('statCompliance').textContent = d.compliance_pct + '%';
-    document.getElementById('complianceFill').style.width = d.compliance_pct + '%';
-    renderCharts(d.weekly);
-  } catch(e) { console.error(e); }
-}
-
-function fmtPace(sec) {
-  if (!sec) return '–';
-  const m = Math.floor(sec/60), s = sec%60;
-  return `${m}:${String(s).padStart(2,'0')}/km`;
-}
-
-// ── Charts ───────────────────────────────────────────────────────
-function renderCharts(weekly) {
-  const labels = weekly.map(w => 'T'+w.week);
-  const kms    = weekly.map(w => +w.km.toFixed(1));
-
-  // KM chart
-  new Chart(document.getElementById('chartKm'), {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        data: kms,
-        backgroundColor: kms.map(k => k >= 50 ? 'rgba(255,107,53,.7)' : 'rgba(0,229,255,.5)'),
-        borderRadius: 4,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { ticks: { color: '#64748b', font: { family: 'DM Mono', size: 10 } }, grid: { color: '#1e2d45' } },
-        y: { ticks: { color: '#64748b', font: { family: 'DM Mono', size: 10 } }, grid: { color: '#1e2d45' } }
-      }
-    }
-  });
-
-  // HR trend from activities
-  const hrActs = ACTIVITIES.filter(a => a.avg_hr).slice(-12);
-  const hrLabels = hrActs.map(a => a.date.slice(5));
-  const hrVals   = hrActs.map(a => a.avg_hr);
-  new Chart(document.getElementById('chartHr'), {
-    type: 'line',
-    data: {
-      labels: hrLabels,
-      datasets: [{
-        data: hrVals,
-        borderColor: '#ff6b35',
-        backgroundColor: 'rgba(255,107,53,.1)',
-        pointBackgroundColor: '#ff6b35',
-        tension: 0.4, fill: true, pointRadius: 4,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { ticks: { color: '#64748b', font: { family: 'DM Mono', size: 10 } }, grid: { color: '#1e2d45' } },
-        y: { ticks: { color: '#64748b', font: { family: 'DM Mono', size: 10 } }, grid: { color: '#1e2d45' } }
-      }
-    }
-  });
-}
-
-// ── AI Feedback ───────────────────────────────────────────────────
-async function getAIFeedback() {
-  const week = parseInt(document.getElementById('aiWeek').value);
-  const btn  = document.getElementById('aiBtn');
-  const out  = document.getElementById('aiOutput');
-
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>Đang phân tích...';
-  out.className = 'ai-output loading';
-  out.textContent = '🤖 AI đang đánh giá dữ liệu và xây dựng gợi ý cho bạn...';
-
-  try {
-    const r = await fetch('/api/ai-feedback', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ athlete_name: ATHLETE_NAME, week_num: week })
-    });
-    const d = await r.json();
-    if (d.error) throw new Error(d.error);
-    out.className = 'ai-output';
-    out.textContent = d.feedback;
-  } catch(e) {
-    out.className = 'ai-output';
-    out.textContent = '❌ Lỗi: ' + e.message;
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '✨ Phân tích ngay';
-  }
-}
-
-loadSummary();
-
-// ── Delete activity ───────────────────────────────────────────────
-async function deleteActivity(idx, event) {
-  event.preventDefault();
-  event.stopPropagation();
-  if (!confirm('Xóa buổi tập này?\n(Không thể hoàn tác)')) return;
-
-  const row = event.currentTarget.closest('tr');
-  row.style.opacity = '0.4';
-
-  try {
-    const r = await fetch(
-      '/api/athlete/' + encodeURIComponent(ATHLETE_NAME) + '/activity/' + idx,
-      { method: 'DELETE' }
-    );
-    const d = await r.json();
-    if (d.error) { row.style.opacity = ''; alert('Lỗi: ' + d.error); return; }
-    location.reload();
-  } catch (e) {
-    row.style.opacity = '';
-    alert('Lỗi: ' + e.message);
-  }
-}
+  window.ATHLETE_ID = {{ athlete.id|tojson }};
+  window.SUMMARY = {{ summary|tojson }};
+  window.ACTIVITIES = {{ activities|tojson }};
+  window.PLAN_NAMES = {{ plan_names|tojson }};
+  window.AI_PLAN_ID = {{ (ai_plan.id if ai_plan else none)|tojson }};
 </script>
-</body>
-</html>
+<script src="{{ url_for('static', filename='js/athlete.js') }}"></script>
+{% endblock %}

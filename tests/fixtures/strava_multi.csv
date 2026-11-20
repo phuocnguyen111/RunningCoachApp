@@ -1,0 +1,4 @@
+Activity ID,Activity Date,Activity Name,Activity Type,Elapsed Time,Distance,Max Heart Rate,Moving Time,Distance,Elevation Gain,Average Heart Rate,Average Cadence
+1,"Jun 17, 2026, 10:30:00 PM",Easy,Run,2800,6.00,150,2700,6000.0,20,140,85
+2,"Jun 19, 2026, 11:00:00 PM",Commute,Ride,3600,25.00,130,3500,25000.0,80,120,
+3,"Jun 21, 2026, 10:00:00 PM",Long,Run,6000,13.20,160,5900,13200.0,40,146,86

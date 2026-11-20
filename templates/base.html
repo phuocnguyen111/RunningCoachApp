@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Running Coach{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+<nav>
+  <a class="nav-brand" href="/">🏃 CoachRun</a>
+  {% block navstat %}{% endblock %}
+  <div class="nav-links"><a href="/">Dashboard</a></div>
+</nav>
+{% block content %}{% endblock %}
+<div class="toast" id="toast"></div>
+<script src="{{ url_for('static', filename='vendor/chart.umd.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

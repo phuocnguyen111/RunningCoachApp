@@ -1,48 +1,37 @@
 #!/bin/bash
 # run.sh – khởi động Running Coach App
+cd "$(dirname "$0")"
 
 echo ""
 echo "═══════════════════════════════════════════"
 echo "  🏃 RUNNING COACH APP"
-echo "  Phân tích tracklog · So sánh giáo án · AI"
 echo "═══════════════════════════════════════════"
 echo ""
 
-# Check Python
-if ! command -v python3 &> /dev/null; then
-  echo "❌ Cần cài Python 3.8+"
-  exit 1
-fi
-
-# Tạo thư mục cần thiết
-mkdir -p plans data/groups data/athletes uploads data_backup
-
-# Kiểm tra xem app đang chạy chưa
-if [ -f ".app.pid" ]; then
-  PID=$(cat .app.pid)
-  if kill -0 "$PID" 2>/dev/null; then
-    echo "⚠️  App đang chạy rồi (PID=$PID) tại http://localhost:5050"
-    echo "   Chạy ./stop.sh trước nếu muốn restart."
-    open http://localhost:5050 2>/dev/null || true
-    exit 0
+if ! command -v uv &> /dev/null; then
+  USER_BIN="$(python3 -m site --user-base 2>/dev/null)/bin"
+  if [ -x "$USER_BIN/uv" ]; then
+    export PATH="$USER_BIN:$PATH"
   else
-    rm -f .app.pid
+    echo "❌ Cần cài uv: pip3 install --user uv  (hoặc https://docs.astral.sh/uv/)"
+    exit 1
   fi
 fi
 
-# Install deps nếu chưa có (bỏ qua nếu đã có)
-echo "📦 Kiểm tra dependencies..."
-pip3 install flask fitparse gpxpy "pandas<2.0" anthropic \
-  --trusted-host pypi.org --trusted-host files.pythonhosted.org \
-  -q 2>/dev/null || true
+if [ -f ".app.pid" ]; then
+  PID=$(cat .app.pid)
+  if kill -0 "$PID" 2>/dev/null; then
+    echo "⚠️  App đang chạy rồi (PID=$PID) tại http://127.0.0.1:5050"
+    echo "   Chạy ./stop.sh trước nếu muốn restart."
+    open http://127.0.0.1:5050 2>/dev/null || true
+    exit 0
+  fi
+  rm -f .app.pid
+fi
 
-echo ""
-echo "🌐 Địa chỉ: http://localhost:5050"
-echo "   Dùng ./stop.sh hoặc Ctrl+C để tắt an toàn"
-echo ""
+echo "📦 Đồng bộ dependencies (uv sync)..."
+uv sync --quiet || exit 1
 
-# Mở browser sau 1.5 giây (đủ để Flask khởi động)
-(sleep 1.5 && open http://localhost:5050 2>/dev/null) &
+(sleep 2 && open http://127.0.0.1:5050 2>/dev/null) &
 
-python3 app.py
-
+uv run python app.py
